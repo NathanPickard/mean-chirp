@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 module.exports = function (passport) {
+
   router.get('/success', function (req, res) {
     res.send({ state: 'success', user: req.user ? req.user : null });
   });
@@ -15,7 +16,7 @@ module.exports = function (passport) {
     failureRedirect: '/auth/failure'
   }));
 
-  router.post('/singup', passport.authenticate('signup', {
+  router.post('/signup', passport.authenticate('signup', {
     successRedirect: '/auth/success',
     failureRedirect: '/auth/failure'
   }));
