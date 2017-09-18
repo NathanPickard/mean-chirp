@@ -6,9 +6,10 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 var passport = require('passport');
-
 var api = require('./routes/api');
 var authenticate = require('./routes/authenticate')(passport);
+var mongoose = require('mongoose');
+mongoose.connect("mongodb://localhost:test-chirp");
 
 var app = express();
 
@@ -29,6 +30,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use('/', index);
 app.use('/auth', authenticate);
 app.use('/api', api);
 
@@ -39,28 +41,29 @@ app.use(function (req, res, next) {
   next(err);
 });
 
+require('./models/models.js');
 var initPassport = require('./passport-init');
 initPassport(passport);
 
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
-      res.status(err.status || 500);
-      res.render('error', {
-          message: err.message,
-          error: err
-      });
+  app.use(function (err, req, res, next) {
+    res.status(err.status || 500);
+    res.render('error', {
+      message: err.message,
+      error: err
+    });
   });
 }
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render('error', {
-      message: err.message,
-      error: {}
+    message: err.message,
+    error: {}
   });
 });
 
