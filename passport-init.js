@@ -11,19 +11,18 @@ module.exports = function (passport) {
     console.log('serializing user:', user._id);
     return done(null, user._id);
   });
-  
+
 
   passport.deserializeUser(function (id, done) {
 
     User.findById(id, function (err, user) {
-      if (err) {
-        return done(err, false);
-      }
-
-      if (!user) {
-        return done('user not found', false);
-      }
-      return done(user, true);
+      // if (err) {
+      return done(err, user);
+      // }
+      // if (!user) {
+      //   return done('user not found', false);
+      // }
+      // return done(user, true);
     });
   });
 
@@ -33,13 +32,13 @@ module.exports = function (passport) {
   },
     function (req, username, password, done) {
 
-      User.findOne({
-        username: username, function(err, user) {
+      User.findOne({ 'username': username },
+        function (err, user) {
           if (err) {
-            return done(err, false);
+            return done(err);
           }
           if (!user) {
-            return done('user ' + username + 'not foudn!', false);
+            return done('user ' + username + 'not found!', false);
           }
 
           if (!isValidPassword(user, password)) {
@@ -48,49 +47,48 @@ module.exports = function (passport) {
 
           return done(null, user);
         }
-      })
-
-      if (!users[username]) {
-        return done(null, false);
-      }
-
-      if (isValidPassword(users[username], password)) {
-        return done(null, users[username]);
-      }
-      else {
-        console.log('Invalid password');
-        return done(null, false);
-      }
+      );
     }
-
   ));
+
+  //   if (isValidPassword(users[username], password)) {
+  //     return done(null, users[username]);
+  //   }
+  //   else {
+  //     console.log('Invalid password');
+  //     return done(null, false);
+  //   }
+  // }
+
 
   passport.use('signup', new LocalStrategy({
     passReqToCallback: true
   },
     function (req, username, password, done) {
 
-      User.findOne({ username: username }, function (err, user) {
+      User.findOne({ 'username': username }, function (err, user) {
         if (err) {
-          return done(err, false);
+          return done(err);
         }
 
         if (user) {
           return done('username already taken', false);
+        } else {
+          var newUser = new User();
+          newUser.username = username;
+          newUser.password = createHash(password);
+
+
+
+          newUser.save(function (err) {
+            if (err) {
+              return done(err, false);
+            }
+            console.log('successfully signed up user ' + username);
+
+            return done(null, newUser);
+          });
         }
-
-        var user = new User();
-        user.username = username;
-        user.password = createHash(password);
-
-        user.save(function (err, user) {
-          if (err) {
-            return done(err, false);
-          }
-          console.log('successfully signed up user ' + username);
-
-          return done(null, user);
-        });
       });
     })
   );

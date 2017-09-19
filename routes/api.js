@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
 var Post = mongoose.model('Post');
+var User = mongoose.model('User');
 
 function isAuthenticated(req, res, next) {
 
@@ -23,7 +24,7 @@ router.route('/posts')
 
     var post = new Post();
     post.text = req.body.text;
-    post.username = req.body.created_by;
+    post.created_by = req.body.created_by;
     post.save(function (err, post) {
       if (err) {
         return res.send(500, err);
@@ -34,35 +35,16 @@ router.route('/posts')
 
   .get(function (req, res) {
 
-    Post.find(function (err, data) {
+    Post.find(function (err, posts) {
       if (err) {
         return res.send(500, err);
       }
-      return res.send(data);
-
+      return res.send(posts);
     });
-
-    res.send({ message: "TODO return all posts" });
-  })
+  });
 
 
 router.route('/posts/:id')
-
-  .put(function (req, res) {
-    Post.findById(req.params.id, function (err, post) {
-      if (err)
-        res.send(err);
-
-      post.username = req.body.created_by;
-      post.text = req.body.text;
-
-      post.save(function (err, post) {
-        if (err)
-          res.send(err);
-        res.json(post);
-      });
-    });
-  })
 
   .get(function (req, res) {
     Post.findById(req.params.id, function (err, post) {
@@ -72,6 +54,21 @@ router.route('/posts/:id')
     });
   })
 
+  .put(function (req, res) {
+    Post.findById(req.params.id, function (err, post) {
+      if (err)
+        res.send(err);
+
+      post.created_by = req.body.created_by;
+      post.text = req.body.text;
+
+      post.save(function (err, post) {
+        if (err)
+          res.send(err);
+        res.json(post);
+      });
+    });
+  })
 
   .delete(function (req, res) {
     Post.remove({
