@@ -13,7 +13,13 @@ var models = require('./models/models.js');
 var index = require('./routes/index');
 var api = require('./routes/api');
 var authenticate = require('./routes/authenticate')(passport);
-mongoose.connect("mongodb://localhost:test-chirp");
+
+if (process.env.DEV_ENV) {
+  mongoose.connect("mongodb://localhost:test-chirp");
+}
+else {
+  mongoose.connect("mongodb://chirp-app:cd61BDbYL2KZGEwdhaMmiKDL3Qm4RQHEcDsaVcbnfLL7UCo1sL10InIQ1xuXslRpCTGa5Rl4DkyhDxcYM7276w==@chirp-app.documents.azure.com:10255/?ssl=true&replicaSet=globaldb");
+} 
 
 var app = express();
 
