@@ -38,10 +38,10 @@ app.factory('postService', function ($resource) {
   return $resource('/api/posts/:id');
 });
 
-app.controller('mainController', function ($scope, $rootScope, postService) {
+app.controller('mainController', function ($rootScope, $scope, postService) {
   $scope.posts = postService.query();
-  // $scope.posts = [];
   $scope.newPost = { create_by: '', text: '', created_at: '' };
+  // $scope.posts = [];
 
   // postService.getAll().success(function (data) {
   //   $scope.posts = data;
@@ -49,13 +49,14 @@ app.controller('mainController', function ($scope, $rootScope, postService) {
   // $scope.newPost = "";
 
   $scope.post = function () {
-    // postService.save({ created_by: $rootScope.current_user, text: $scope.newPost, created_at: Date.now()},
-    //   function() {
-    // $scope.posts = postService.query();
-    // $scope.newPost = "";
+    $scope.newPost.created_by = $rootScope.current_user;
     $scope.newPost.created_at = Date.now();
-    $scope.posts.push($scope.newPost);
-    $scope.newPost = { created_by: '', text: '', created_at: '' };
+    postService.save($scope.newPost, function () {
+      $scope.posts = postService.query();
+      $scope.newPost = { create_by: '', text: '', created_at: '' };
+    });
+    // $scope.posts.push($scope.newPost);
+    // $scope.newPost = { created_by: '', text: '', created_at: '' };
   };
 });
 
